@@ -31,6 +31,12 @@ public class BlogpostService {
         return repository.findById(id);
     }
 
+    public List<Blogpost> getBlogpostsByCategory(List<Long> categoryIds) {
+        log.info("Filter blogposts by categories {}", categoryIds);
+        return repository.findAll().stream()
+            .filter(blogpost -> blogpost.getCategories().containsAll(categoryIds)).toList();
+    }
+
     // Helper method: avoid adding categories to blogposts that don't exist
     private boolean validCategories(List<Long> categories) {
         if (categories == null) {

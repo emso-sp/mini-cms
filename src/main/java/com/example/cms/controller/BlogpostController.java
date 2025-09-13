@@ -8,6 +8,7 @@ import java.util.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -59,6 +60,19 @@ public class BlogpostController {
     public ResponseEntity<Blogpost> update(@PathVariable Long id, @RequestBody Blogpost blogpost) {
         log.info("Received request: PUT /blogposts/{}", id);
         return service.updateBlogpost(id, blogpost)
+            .map(current -> {
+                log.info("Blogpost with id {} found, returning 200 OK", id);
+                return ResponseEntity.ok(current);
+            }).orElseGet(() -> {
+                log.warn("Blogpost with id {} not found, returning 404", id);
+                return ResponseEntity.notFound().build();
+            });
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Blogpost> patch(@PathVariable Long id, @RequestBody Blogpost blogpost) {
+        log.info("Received request: PATCH /blogposts/{}", id);
+        return service.patchBlogpost(id, blogpost)
             .map(current -> {
                 log.info("Blogpost with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);

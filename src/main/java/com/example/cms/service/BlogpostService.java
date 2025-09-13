@@ -50,6 +50,29 @@ public class BlogpostService {
         return Optional.empty();
     }
 
+    public Optional<Blogpost> patchBlogpost(Long id, Blogpost partialUpdate) {
+        Optional<Blogpost> blogpost = repository.findById(id);
+        if (blogpost.isPresent()) {
+            Blogpost current = blogpost.get();
+            if (partialUpdate.getTitle() != null) {
+                current.setTitle(partialUpdate.getTitle());
+            }
+            if (partialUpdate.getContent() != null) {
+                current.setContent(partialUpdate.getContent());
+            }
+            if (partialUpdate.getAuthor() != null) {
+                current.setAuthor(partialUpdate.getAuthor());
+            }
+            if (partialUpdate.getCategories() != null) {
+                current.setCategories(partialUpdate.getCategories());
+            }
+            repository.save(current);
+            log.info("Successfully updated blogpost with id {} partially", id);
+            return Optional.of(current);
+        }
+        return Optional.empty();
+    }
+
     public boolean deleteBlogpost(Long id) {
         if (!repository.findById(id).isPresent()) {
             log.warn("Blogpost with id {} not found. Deleting blogpost unsuccessful", id);

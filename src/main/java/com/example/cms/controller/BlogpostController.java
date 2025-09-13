@@ -50,10 +50,16 @@ public class BlogpostController {
     }
 
     @PostMapping
-    public Blogpost create(@RequestBody Blogpost blogpost) {
+    public ResponseEntity<Blogpost> create(@RequestBody Blogpost blogpost) {
         log.info("Received request: POST /blogposts");
-        Blogpost newBlogpost = service.createBlogpost(blogpost);
-        return newBlogpost;
+        return service.createBlogpost(blogpost)
+            .map(newBlogpost -> {
+                log.info("Category creation successful, return 200 OK");
+                return ResponseEntity.ok(newBlogpost);
+            }).orElseGet(() -> {
+                log.warn("Return badRequest");
+                return ResponseEntity.badRequest().build();
+            });
     }
 
     @PutMapping("/{id}")
@@ -64,7 +70,7 @@ public class BlogpostController {
                 log.info("Blogpost with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);
             }).orElseGet(() -> {
-                log.warn("Blogpost with id {} not found, returning 404", id);
+                log.warn("Returning 404", id);
                 return ResponseEntity.notFound().build();
             });
     }
@@ -77,7 +83,7 @@ public class BlogpostController {
                 log.info("Blogpost with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);
             }).orElseGet(() -> {
-                log.warn("Blogpost with id {} not found, returning 404", id);
+                log.warn("Returning 404", id);
                 return ResponseEntity.notFound().build();
             });
     }

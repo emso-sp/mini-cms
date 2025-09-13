@@ -8,11 +8,11 @@ public class Blogpost {
     private String content;
     private String author;
     private LocalDateTime createdAt;
-    private String[] categories;
+    private Long[] categories;
 
     // Constructors
     public Blogpost() {}
-    public Blogpost(Long id, String title, String content, String author, LocalDateTime createdAt, String[] categories) {
+    public Blogpost(Long id, String title, String content, String author, LocalDateTime createdAt, Long[] categories) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -32,6 +32,6 @@ public class Blogpost {
     public void setAuthor(String author) { this.author = author; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public String[] getCategories() { return categories; }
-    public void setCategories(String[] categories) { this.categories = categories; }
+    public Long[] getCategories() { return categories; }
+    public void setCategories(Long[] categories) { this.categories = categories; }
 }

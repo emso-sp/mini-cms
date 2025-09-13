@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.slf4j.Logger;
@@ -31,9 +32,12 @@ public class BlogpostController {
     }
 
     @GetMapping
-    public List<Blogpost> getAll() {
-        log.info("Received request: GET /blogposts");
-        return service.getAllBlogposts();
+    public List<Blogpost> getBlogposts(@RequestParam(required = false, name = "categoryId") List<Long> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            return service.getAllBlogposts();
+        } else {
+            return service.getBlogpostsByCategory(categoryIds);
+        }
     }
 
     @GetMapping("/{id}")

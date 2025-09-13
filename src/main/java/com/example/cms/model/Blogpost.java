@@ -1,6 +1,8 @@
 package com.example.cms.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Blogpost {
     private Long id;
@@ -8,17 +10,16 @@ public class Blogpost {
     private String content;
     private String author;
     private LocalDateTime createdAt;
-    private Long[] categories;
+    private List<Long> categories;
 
     // Constructors
     public Blogpost() {}
-    public Blogpost(Long id, String title, String content, String author, LocalDateTime createdAt, Long[] categories) {
+    public Blogpost(Long id, String title, String content, String author, List<Long> categories) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.author = author;
-        this.createdAt = createdAt;
-        this.categories = categories;
+        this.categories = categories != null ? categories : new ArrayList<>();
     }
 
     // Getters & Setters
@@ -32,6 +33,6 @@ public class Blogpost {
     public void setAuthor(String author) { this.author = author; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Long[] getCategories() { return categories; }
-    public void setCategories(Long[] categories) { this.categories = categories; }
+    public List<Long> getCategories() { return categories; }
+    public void setCategories(List<Long> categories) { this.categories = categories; }
 }

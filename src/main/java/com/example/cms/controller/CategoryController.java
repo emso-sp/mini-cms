@@ -1,7 +1,8 @@
 package com.example.cms.controller;
 
 import com.example.cms.service.CategoryService;
-import com.example.cms.model.Category;
+import com.example.cms.dto.CategoryRequest;
+import com.example.cms.dto.CategoryResponse;
 
 import java.util.*;
 
@@ -30,13 +31,13 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<Category> getAll() {
+    public List<CategoryResponse> getAll() {
         log.info("Received request: GET /categories");
         return service.getAllCategories();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getOne(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> getOne(@PathVariable Long id) {
         log.info("Received request: GET /categories/{}", id);
         return service.getCategory(id)
             .map(category -> {
@@ -49,15 +50,15 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category create(@RequestBody Category category) {
+    public CategoryResponse create(@RequestBody CategoryRequest request) {
         log.info("Received request: POST /categories");
-        return service.createCategory(category);
+        return service.createCategory(request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody Category category) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
         log.info("Received request: UPDATE /categories/{}", id);
-        return service.updateCategory(id, category)
+        return service.updateCategory(id, request)
             .map(current -> {
                 log.info("Category with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);
@@ -68,9 +69,9 @@ public class CategoryController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Category> patch(@PathVariable Long id, @RequestBody Category category) {
+    public ResponseEntity<CategoryResponse> patch(@PathVariable Long id, @RequestBody CategoryRequest request) {
         log.info("Received request: PATCH /categories/{}", id);
-        return service.patchCategory(id, category)
+        return service.patchCategory(id, request)
             .map(current -> {
                 log.info("Category with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);

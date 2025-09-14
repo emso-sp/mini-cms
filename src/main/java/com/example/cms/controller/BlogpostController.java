@@ -1,7 +1,8 @@
 package com.example.cms.controller;
 
 import com.example.cms.service.BlogpostService;
-import com.example.cms.model.Blogpost;
+import com.example.cms.dto.PostRequest;
+import com.example.cms.dto.PostResponse;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class BlogpostController {
     }
 
     @GetMapping
-    public List<Blogpost> getBlogposts(@RequestParam(required = false, name = "categoryId") List<Long> categoryIds) {
+    public List<PostResponse> getBlogposts(@RequestParam(required = false, name = "categoryId") List<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {
             return service.getAllBlogposts();
         } else {
@@ -41,7 +42,7 @@ public class BlogpostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Blogpost> getOne(@PathVariable Long id) {
+    public ResponseEntity<PostResponse> getOne(@PathVariable Long id) {
         log.info("Received request: GET /blogposts/{}", id);
         return service.getBlogpost(id)
             .map(blogpost -> {
@@ -54,11 +55,11 @@ public class BlogpostController {
     }
 
     @PostMapping
-    public ResponseEntity<Blogpost> create(@RequestBody Blogpost blogpost) {
+    public ResponseEntity<PostResponse> create(@RequestBody PostRequest request) {
         log.info("Received request: POST /blogposts");
-        return service.createBlogpost(blogpost)
+        return service.createBlogpost(request)
             .map(newBlogpost -> {
-                log.info("Category creation successful, return 200 OK");
+                log.info("Blogpost creation successful, return 200 OK");
                 return ResponseEntity.ok(newBlogpost);
             }).orElseGet(() -> {
                 log.warn("Return badRequest");
@@ -67,9 +68,9 @@ public class BlogpostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Blogpost> update(@PathVariable Long id, @RequestBody Blogpost blogpost) {
+    public ResponseEntity<PostResponse> update(@PathVariable Long id, @RequestBody PostRequest request) {
         log.info("Received request: PUT /blogposts/{}", id);
-        return service.updateBlogpost(id, blogpost)
+        return service.updateBlogpost(id, request)
             .map(current -> {
                 log.info("Blogpost with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);
@@ -80,9 +81,9 @@ public class BlogpostController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Blogpost> patch(@PathVariable Long id, @RequestBody Blogpost blogpost) {
+    public ResponseEntity<PostResponse> patch(@PathVariable Long id, @RequestBody PostRequest request) {
         log.info("Received request: PATCH /blogposts/{}", id);
-        return service.patchBlogpost(id, blogpost)
+        return service.patchBlogpost(id, request)
             .map(current -> {
                 log.info("Blogpost with id {} found, returning 200 OK", id);
                 return ResponseEntity.ok(current);

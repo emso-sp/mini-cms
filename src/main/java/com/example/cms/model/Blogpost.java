@@ -10,7 +10,7 @@ public class Blogpost {
     private String content;
     private String author;
     private LocalDateTime createdAt;
-    private List<Long> categories;
+    private List<Long> categories = new ArrayList<>();
 
     // Constructors
     public Blogpost() {}
@@ -19,7 +19,7 @@ public class Blogpost {
         this.title = title;
         this.content = content;
         this.author = author;
-        this.categories = categories != null ? categories : new ArrayList<>();
+        this.categories = categories;
     }
 
     // Getters & Setters

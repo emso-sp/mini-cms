@@ -6,6 +6,7 @@ import com.example.cms.model.Blogpost;
 import com.example.cms.dto.PostRequest;
 import com.example.cms.dto.PostResponse;
 import com.example.cms.util.PostMapper;
+import com.example.cms.service.ServiceResult;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -56,28 +57,51 @@ public class BlogpostService {
         return categories.stream().allMatch(id -> categoryRepository.findById(id).isPresent());
     }
 
-    public Optional<PostResponse> createBlogpost(PostRequest request) {
+    // Helper method: invalid title
+    private boolean invalidTitle(PostRequest request) {
+        return (request.title() == null || request.title().isEmpty());
+    }
+
+    // Helper method: invalid content
+    private boolean invalidContent(PostRequest request) {
+        return (request.content() == null || request.content().isEmpty());
+    }
+
+    // Helper method: invalid author
+    private boolean invalidAuthor(PostRequest request) {
+        return (request.author() == null || request.author().isEmpty());
+    }
+
+    public ServiceResult<PostResponse> createBlogpost(PostRequest request) {
+        if (invalidTitle(request) || invalidContent(request) || invalidAuthor(request)) {
+            log.warn("Title, content and author cannot be null or empty");
+            return ServiceResult.invalidInput();
+        }
         boolean valid = validCategories(request.categoryIds());
         log.info("Are categories valid? {}", valid);
         if (!validCategories(request.categoryIds())) {
             log.warn("Invalid categories: Blogpost creation unsuccessful");
-            return Optional.empty();
+            return ServiceResult.invalidInput();
         }
         Blogpost blogpost = postMapper.toEntity(request);
         Blogpost saved = repository.save(blogpost);
         log.info("Successfully created blogpost with id {}", saved.getId());
-        return Optional.of(postMapper.toResponse(saved));
+        return ServiceResult.ok(postMapper.toResponse(saved));
     }
 
-    public Optional<PostResponse> updateBlogpost(Long id, PostRequest request) {
+    public ServiceResult<PostResponse> updateBlogpost(Long id, PostRequest request) {
         Optional<Blogpost> existing = repository.findById(id);
         if (existing.isEmpty()) {
             log.warn("Blogpost with id {} not found", id);
-            return Optional.empty();
+            return ServiceResult.notFound();
+        }
+        if (invalidTitle(request) || invalidContent(request) || invalidAuthor(request)) {
+            log.warn("Title, content and author cannot be null or empty");
+            return ServiceResult.invalidInput();
         }
         if (!validCategories(request.categoryIds())) {
             log.warn("Invalid categories: Blogpost update unsuccessful");
-            return Optional.empty();
+            return ServiceResult.invalidInput();
         }
 
         Blogpost current = existing.get();
@@ -90,7 +114,7 @@ public class BlogpostService {
         );
         repository.save(current);
         log.info("Successfully updated blogpost with id {}", id);
-        return Optional.of(postMapper.toResponse(current));
+        return ServiceResult.ok(postMapper.toResponse(current));
     }
 
     public Optional<PostResponse> patchBlogpost(Long id, PostRequest request) {

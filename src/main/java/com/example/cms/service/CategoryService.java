@@ -6,6 +6,7 @@ import com.example.cms.model.Category;
 import com.example.cms.dto.CategoryRequest;
 import com.example.cms.dto.CategoryResponse;
 import com.example.cms.util.CategoryMapper;
+import com.example.cms.service.ServiceResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +41,21 @@ public class CategoryService {
         return repository.findById(id).map(categoryMapper::toResponse);
     }
 
-    public CategoryResponse createCategory(CategoryRequest request) {
+    // Helper: check if name is empty or null
+    private boolean invalidName(CategoryRequest request) {
+        return (request.name() == null || request.name().isEmpty());
+    }
+
+    public ServiceResult<CategoryResponse> createCategory(CategoryRequest request) {
+        if (invalidName(request)) { return ServiceResult.invalidInput(); }
         Category newCategory = categoryMapper.toEntity(request);
         repository.save(newCategory);
         log.info("Successfully created new category: {}", newCategory.getId());
-        return categoryMapper.toResponse(newCategory);
+        return ServiceResult.ok(categoryMapper.toResponse(newCategory));
     }
 
-    public Optional<CategoryResponse> updateCategory(Long id, CategoryRequest request) {
+    public ServiceResult<CategoryResponse> updateCategory(Long id, CategoryRequest request) {
+        if (invalidName(request)) { return ServiceResult.invalidInput(); }
         Optional<Category> category = repository.findById(id);
         if (category.isPresent()) {
             Category current = category.get();
@@ -55,9 +63,9 @@ public class CategoryService {
             current.setDescription(request.description());
             repository.save(current);
             log.info("Successfully updated category {}", id);
-            return Optional.of(categoryMapper.toResponse(current));
+            return ServiceResult.ok(categoryMapper.toResponse(current));
         }
-        return Optional.empty();
+        return ServiceResult.notFound();
     }
 
     public Optional<CategoryResponse> patchCategory(Long id, CategoryRequest request) {

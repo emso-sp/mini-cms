@@ -3,6 +3,7 @@ package com.example.cms.controller;
 import com.example.cms.service.BlogpostService;
 import com.example.cms.dto.PostRequest;
 import com.example.cms.dto.PostResponse;
+import com.example.cms.service.ServiceResult;
 
 import java.util.*;
 
@@ -57,27 +58,41 @@ public class BlogpostController {
     @PostMapping
     public ResponseEntity<PostResponse> create(@RequestBody PostRequest request) {
         log.info("Received request: POST /blogposts");
-        return service.createBlogpost(request)
-            .map(newBlogpost -> {
+        ServiceResult<PostResponse> result = service.createBlogpost(request);
+        return switch (result.getStatus()) {
+            case OK -> {
                 log.info("Blogpost creation successful, return 200 OK");
-                return ResponseEntity.ok(newBlogpost);
-            }).orElseGet(() -> {
-                log.warn("Return badRequest");
-                return ResponseEntity.badRequest().build();
-            });
+                yield ResponseEntity.ok(result.getData());
+            }
+            case INVALID_INPUT -> {
+                log.warn("Invalid input, return 400 Bad Request");
+                yield ResponseEntity.badRequest().build();
+            }
+            case NOT_FOUND -> {
+                log.warn("Blogpost not found, return 404 Not Found");
+                yield ResponseEntity.notFound().build();
+            }
+        };
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> update(@PathVariable Long id, @RequestBody PostRequest request) {
         log.info("Received request: PUT /blogposts/{}", id);
-        return service.updateBlogpost(id, request)
-            .map(current -> {
-                log.info("Blogpost with id {} found, returning 200 OK", id);
-                return ResponseEntity.ok(current);
-            }).orElseGet(() -> {
-                log.warn("Returning 404", id);
-                return ResponseEntity.notFound().build();
-            });
+        ServiceResult<PostResponse> result = service.updateBlogpost(id, request);
+        return switch (result.getStatus()) {
+            case OK -> {
+                log.info("Blogpost creation successful, return 200 OK");
+                yield ResponseEntity.ok(result.getData());
+            }
+            case INVALID_INPUT -> {
+                log.warn("Invalid input, return 400 Bad Request");
+                yield ResponseEntity.badRequest().build();
+            }
+            case NOT_FOUND -> {
+                log.warn("Blogpost not found, return 404 Not Found");
+                yield ResponseEntity.notFound().build();
+            }
+        };
     }
 
     @PatchMapping("/{id}")

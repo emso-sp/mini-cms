@@ -1,6 +1,7 @@
 package com.example.cms.controller;
 
 import com.example.cms.service.CategoryService;
+import com.example.cms.service.ServiceResult;
 import com.example.cms.dto.CategoryRequest;
 import com.example.cms.dto.CategoryResponse;
 
@@ -8,6 +9,7 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,22 +52,45 @@ public class CategoryController {
     }
 
     @PostMapping
-    public CategoryResponse create(@RequestBody CategoryRequest request) {
+    public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest request) {
         log.info("Received request: POST /categories");
-        return service.createCategory(request);
+           
+        ServiceResult<CategoryResponse> result = service.createCategory(request);
+        return switch (result.getStatus()) {
+            case OK -> {
+                log.info("Category successfully created, returning 200 OK");
+                yield ResponseEntity.ok(result.getData());
+            }
+            case INVALID_INPUT -> {
+                log.warn("Name cannot be null or empty, returning 400 Bad Request");
+                yield ResponseEntity.badRequest().build();
+            }
+            case NOT_FOUND -> {
+                log.warn("Category not found, returning 404 Not Found");
+                yield ResponseEntity.notFound().build();
+            }
+        };
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
         log.info("Received request: UPDATE /categories/{}", id);
-        return service.updateCategory(id, request)
-            .map(current -> {
+
+        ServiceResult<CategoryResponse> result = service.updateCategory(id, request);
+        return switch(result.getStatus()) {
+            case OK -> {
                 log.info("Category with id {} found, returning 200 OK", id);
-                return ResponseEntity.ok(current);
-            }).orElseGet(() -> {
-                log.info("Category with id {} not found, returning 404", id);
-                return ResponseEntity.notFound().build();
-            });
+                yield ResponseEntity.ok(result.getData());
+            }
+            case INVALID_INPUT -> {
+                log.warn("Name cannot be null or empty, returning 400 Bad Request");
+                yield ResponseEntity.badRequest().build();
+            }
+            case NOT_FOUND -> {
+                log.warn("Category not found, returning 404 Not Found");
+                yield ResponseEntity.notFound().build();
+            }
+        };
     }
 
     @PatchMapping("/{id}")

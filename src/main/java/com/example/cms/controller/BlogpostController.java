@@ -113,7 +113,7 @@ public class BlogpostController {
         log.info("Received request: DELETE /blogposts/{}", id);
         boolean deleted = service.deleteBlogpost(id);
         if (deleted) {
-            log.info("Blogpost with id {} found, returning 200 OK", id);
+            log.info("Blogpost with id {} found, returning 204 OK", id);
             return ResponseEntity.noContent().build();
         } else {
             log.info("Blogpost with id {} not found, returning 404", id);

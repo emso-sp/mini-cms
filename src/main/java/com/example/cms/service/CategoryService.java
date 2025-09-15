@@ -95,4 +95,22 @@ public class CategoryService {
         return true;
     }
 
+    public boolean deleteCategorySafely(Long id) {
+        // check if category exists
+        Optional<Category> category = repository.findById(id);
+        if (category.isEmpty()) {
+            log.warn("Category with id {} not found", id);
+            return false;
+        }
+        // check if category is part of any blogposts
+        if (blogpostRepository.findAll().stream().anyMatch(blogpost -> blogpost.getCategories() != null && blogpost.getCategories().contains(id))) {
+            log.warn("Category with id {} still used in blogposts, cannot be safely deleted", id);
+            return false;
+        }
+        // actually delete it
+        repository.deleteById(id);
+        log.info("Category with id {} safely deleted", id);
+        return true;
+    }
+
 }

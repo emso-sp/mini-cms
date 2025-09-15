@@ -112,11 +112,26 @@ public class CategoryController {
         log.info("Received request: DELETE /categories/{}", id);
         boolean deleted = service.deleteCategory(id);
         if (deleted) {
-            log.info("Category with id {} found, returning 200 OK", id);
+            log.info("Category with id {} found, returning 204 OK", id);
             return ResponseEntity.noContent().build();
         } else {
             log.info("Category with id {} not found, returning 404", id);
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/{id}/safe")
+    public ResponseEntity<Void> safeDelete(@PathVariable Long id) {
+        // deletes category only when it is not used in any blogpost
+        log.info("Received request: DELETE /categories/{}/safe", id);
+        boolean deleted = service.deleteCategorySafely(id);
+
+        if (deleted) {
+            log.info("Returning 204 ok");
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+        
     }
 }

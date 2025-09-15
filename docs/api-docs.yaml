@@ -1,0 +1,397 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /categories/{id}:
+    get:
+      tags:
+      - category-controller
+      operationId: getOne
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+    put:
+      tags:
+      - category-controller
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+    delete:
+      tags:
+      - category-controller
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+      - category-controller
+      operationId: patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+  /blogposts/{id}:
+    get:
+      tags:
+      - blogpost-controller
+      operationId: getOne_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+    put:
+      tags:
+      - blogpost-controller
+      operationId: update_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+    delete:
+      tags:
+      - blogpost-controller
+      operationId: delete_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+      - blogpost-controller
+      operationId: patch_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+  /blogposts/{id}/status:
+    put:
+      tags:
+      - blogpost-controller
+      operationId: updateStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+  /blogposts/{id}/rollback:
+    put:
+      tags:
+      - blogpost-controller
+      operationId: rollback
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+  /categories:
+    get:
+      tags:
+      - category-controller
+      operationId: getAll
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryResponse"
+    post:
+      tags:
+      - category-controller
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+  /blogposts:
+    get:
+      tags:
+      - blogpost-controller
+      operationId: getBlogposts
+      parameters:
+      - name: categoryId
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostResponse"
+    post:
+      tags:
+      - blogpost-controller
+      operationId: create_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+  /blogposts/{id}/versions:
+    get:
+      tags:
+      - blogpost-controller
+      operationId: getAllVersions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostResponse"
+  /categories/{id}/safe:
+    delete:
+      tags:
+      - category-controller
+      operationId: safeDelete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+    PostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        content:
+          type: string
+        categoryIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    PostResponse:
+      type: object
+      properties:
+        blogpostId:
+          type: integer
+          format: int64
+        versionNumber:
+          type: integer
+          format: int32
+        title:
+          type: string
+        author:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+          - ARCHIVED
+        categories:
+          type: array
+          items:
+            type: string
+    StatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+          - ARCHIVED

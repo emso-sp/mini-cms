@@ -1,5 +1,7 @@
 package com.example.cms.model;
 
+import com.example.cms.model.Status;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +12,17 @@ public class Blogpost {
     private String content;
     private String author;
     private LocalDateTime createdAt;
+    private Status status;
     private List<Long> categories = new ArrayList<>();
 
     // Constructors
     public Blogpost() {}
-    public Blogpost(Long id, String title, String content, String author, List<Long> categories) {
+    public Blogpost(Long id, String title, String content, String author, Status status, List<Long> categories) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.author = author;
+        this.status = status;
         this.categories = categories;
     }
 
@@ -31,6 +35,8 @@ public class Blogpost {
     public void setContent(String content) { this.content = content; }
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public List<Long> getCategories() { return categories; }

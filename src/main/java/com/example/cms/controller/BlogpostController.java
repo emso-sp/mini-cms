@@ -59,7 +59,7 @@ public class BlogpostController {
     @PostMapping
     public ResponseEntity<PostResponse> create(@RequestBody PostRequest request) {
         log.info("Received request: POST /blogposts");
-        ServiceResult<PostResponse> result = service.createBlogpost(request);
+        final ServiceResult<PostResponse> result = service.createBlogpost(request);
         return switch (result.getStatus()) {
             case OK -> {
                 log.info("Blogpost creation successful, return 200 OK");
@@ -79,7 +79,7 @@ public class BlogpostController {
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> update(@PathVariable Long id, @RequestBody PostRequest request) {
         log.info("Received request: PUT /blogposts/{}", id);
-        ServiceResult<PostResponse> result = service.updateBlogpost(id, request);
+        final ServiceResult<PostResponse> result = service.updateBlogpost(id, request);
         return switch (result.getStatus()) {
             case OK -> {
                 log.info("Blogpost creation successful, return 200 OK");
@@ -100,7 +100,7 @@ public class BlogpostController {
     public ResponseEntity<PostResponse> updateStatus(@PathVariable Long id, @RequestBody StatusRequest request) {
         log.info("Received request: PUT /blogposts/{}/status", id);
 
-        ServiceResult<PostResponse> result = service.updateStatus(id, request);
+        final ServiceResult<PostResponse> result = service.updateStatus(id, request);
         return switch (result.getStatus()) {
             case OK -> {
                 log.info("Status of blogpost {} successfully updated", id);
@@ -133,7 +133,7 @@ public class BlogpostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("Received request: DELETE /blogposts/{}", id);
-        boolean deleted = service.deleteBlogpost(id);
+        final boolean deleted = service.deleteBlogpost(id);
         if (deleted) {
             log.info("Blogpost with id {} found, returning 204 OK", id);
             return ResponseEntity.noContent().build();

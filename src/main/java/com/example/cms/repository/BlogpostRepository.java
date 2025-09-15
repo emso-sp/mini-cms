@@ -13,11 +13,11 @@ public class BlogpostRepository {
         return new ArrayList<>(blogposts.values());
     }
 
-    public Optional<Blogpost> findById(Long id) {
+    public Optional<Blogpost> findById(final Long id) {
         return Optional.ofNullable(blogposts.get(id));
     }
 
-    public Blogpost save(Blogpost blogpost) {
+    public Blogpost save(final Blogpost blogpost) {
         if (blogpost.getId() == null) {
             blogpost.setId(nextId);
             nextId++;
@@ -26,7 +26,7 @@ public class BlogpostRepository {
         return blogpost;
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         blogposts.remove(id);
     }
 

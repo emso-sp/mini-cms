@@ -35,12 +35,12 @@ public class BlogpostService {
                 .toList();
     }
 
-    public Optional<PostResponse> getBlogpost(Long id) {
+    public Optional<PostResponse> getBlogpost(final Long id) {
         return repository.findById(id)
                 .map(postMapper::toResponse);
     }
 
-    public List<PostResponse> getBlogpostsByCategory(List<Long> categoryIds) {
+    public List<PostResponse> getBlogpostsByCategory(final List<Long> categoryIds) {
         log.info("Filter blogposts by categories {}", categoryIds);
         return repository.findAll().stream()
                 .filter(blogpost -> blogpost.getCategories().containsAll(categoryIds))
@@ -50,7 +50,7 @@ public class BlogpostService {
     }
 
     // Helper method: avoid adding categories to blogposts that don't exist
-    private boolean validCategories(List<Long> categories) {
+    private boolean validCategories(final List<Long> categories) {
         log.info("Validating categories {}", categories);
         if (categories == null) {
             return true;
@@ -59,21 +59,21 @@ public class BlogpostService {
     }
 
     // Helper method: invalid title
-    private boolean invalidTitle(PostRequest request) {
+    private boolean invalidTitle(final PostRequest request) {
         return (request.title() == null || request.title().isEmpty());
     }
 
     // Helper method: invalid content
-    private boolean invalidContent(PostRequest request) {
+    private boolean invalidContent(final PostRequest request) {
         return (request.content() == null || request.content().isEmpty());
     }
 
     // Helper method: invalid author
-    private boolean invalidAuthor(PostRequest request) {
+    private boolean invalidAuthor(final PostRequest request) {
         return (request.author() == null || request.author().isEmpty());
     }
 
-    public ServiceResult<PostResponse> createBlogpost(PostRequest request) {
+    public ServiceResult<PostResponse> createBlogpost(final PostRequest request) {
         if (invalidTitle(request) || invalidContent(request) || invalidAuthor(request)) {
             log.warn("Title, content and author cannot be null or empty");
             return ServiceResult.invalidInput();
@@ -85,12 +85,12 @@ public class BlogpostService {
             return ServiceResult.invalidInput();
         }
         Blogpost blogpost = postMapper.toEntity(request);
-        Blogpost saved = repository.save(blogpost);
+        final Blogpost saved = repository.save(blogpost);
         log.info("Successfully created blogpost with id {}", saved.getId());
         return ServiceResult.ok(postMapper.toResponse(saved));
     }
 
-    public ServiceResult<PostResponse> updateBlogpost(Long id, PostRequest request) {
+    public ServiceResult<PostResponse> updateBlogpost(final Long id, final PostRequest request) {
         Optional<Blogpost> existing = repository.findById(id);
         if (existing.isEmpty()) {
             log.warn("Blogpost with id {} not found", id);
@@ -118,7 +118,7 @@ public class BlogpostService {
         return ServiceResult.ok(postMapper.toResponse(current));
     }
 
-    public ServiceResult<PostResponse> updateStatus(Long id, StatusRequest request) {
+    public ServiceResult<PostResponse> updateStatus(final Long id, final StatusRequest request) {
         Optional<Blogpost> existing = repository.findById(id);
         if (existing.isEmpty()) {
             log.warn("Blogpost with id {} not found", id);
@@ -132,7 +132,7 @@ public class BlogpostService {
         return ServiceResult.ok(postMapper.toResponse(current));
     }
 
-    public Optional<PostResponse> patchBlogpost(Long id, PostRequest request) {
+    public Optional<PostResponse> patchBlogpost(final Long id, final PostRequest request) {
         Optional<Blogpost> blogpost = repository.findById(id);
         if (blogpost.isPresent()) {
             Blogpost current = blogpost.get();
@@ -164,7 +164,7 @@ public class BlogpostService {
         return Optional.empty();
     }
 
-    public boolean deleteBlogpost(Long id) {
+    public boolean deleteBlogpost(final Long id) {
         if (!repository.findById(id).isPresent()) {
             log.warn("Blogpost with id {} not found. Deleting blogpost unsuccessful", id);
             return false; 

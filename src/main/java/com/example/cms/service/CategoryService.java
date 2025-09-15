@@ -30,31 +30,31 @@ public class CategoryService {
     }
 
     public List<CategoryResponse> getAllCategories() {
-        List<Category> categories = repository.findAll();
+        final List<Category> categories = repository.findAll();
         log.info("Successfully fetched {} categories", categories.size());
         return categories.stream()
             .map(categoryMapper::toResponse)
             .toList();
     }
 
-    public Optional<CategoryResponse> getCategory(Long id) {
+    public Optional<CategoryResponse> getCategory(final Long id) {
         return repository.findById(id).map(categoryMapper::toResponse);
     }
 
     // Helper: check if name is empty or null
-    private boolean invalidName(CategoryRequest request) {
+    private boolean invalidName(final CategoryRequest request) {
         return (request.name() == null || request.name().isEmpty());
     }
 
-    public ServiceResult<CategoryResponse> createCategory(CategoryRequest request) {
+    public ServiceResult<CategoryResponse> createCategory(final CategoryRequest request) {
         if (invalidName(request)) { return ServiceResult.invalidInput(); }
-        Category newCategory = categoryMapper.toEntity(request);
+        final Category newCategory = categoryMapper.toEntity(request);
         repository.save(newCategory);
         log.info("Successfully created new category: {}", newCategory.getId());
         return ServiceResult.ok(categoryMapper.toResponse(newCategory));
     }
 
-    public ServiceResult<CategoryResponse> updateCategory(Long id, CategoryRequest request) {
+    public ServiceResult<CategoryResponse> updateCategory(final Long id, final CategoryRequest request) {
         if (invalidName(request)) { return ServiceResult.invalidInput(); }
         Optional<Category> category = repository.findById(id);
         if (category.isPresent()) {
@@ -68,7 +68,7 @@ public class CategoryService {
         return ServiceResult.notFound();
     }
 
-    public Optional<CategoryResponse> patchCategory(Long id, CategoryRequest request) {
+    public Optional<CategoryResponse> patchCategory(final Long id, final CategoryRequest request) {
         Optional<Category> category = repository.findById(id);
         if (category.isPresent()) {
             Category current = category.get();
@@ -85,7 +85,7 @@ public class CategoryService {
         return Optional.empty();
     }
 
-    public boolean deleteCategory(Long id) {
+    public boolean deleteCategory(final Long id) {
         if (repository.findById(id).isEmpty()) { return false; }
         repository.deleteById(id);
         // loop through blogpostRepository to remove references to deleted category
@@ -95,9 +95,9 @@ public class CategoryService {
         return true;
     }
 
-    public boolean deleteCategorySafely(Long id) {
+    public boolean deleteCategorySafely(final Long id) {
         // check if category exists
-        Optional<Category> category = repository.findById(id);
+        final Optional<Category> category = repository.findById(id);
         if (category.isEmpty()) {
             log.warn("Category with id {} not found", id);
             return false;

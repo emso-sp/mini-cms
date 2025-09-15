@@ -55,7 +55,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest request) {
         log.info("Received request: POST /categories");
            
-        ServiceResult<CategoryResponse> result = service.createCategory(request);
+        final ServiceResult<CategoryResponse> result = service.createCategory(request);
         return switch (result.getStatus()) {
             case OK -> {
                 log.info("Category successfully created, returning 200 OK");
@@ -76,7 +76,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
         log.info("Received request: UPDATE /categories/{}", id);
 
-        ServiceResult<CategoryResponse> result = service.updateCategory(id, request);
+        final ServiceResult<CategoryResponse> result = service.updateCategory(id, request);
         return switch(result.getStatus()) {
             case OK -> {
                 log.info("Category with id {} found, returning 200 OK", id);
@@ -110,7 +110,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         log.info("Received request: DELETE /categories/{}", id);
-        boolean deleted = service.deleteCategory(id);
+        final boolean deleted = service.deleteCategory(id);
         if (deleted) {
             log.info("Category with id {} found, returning 204 OK", id);
             return ResponseEntity.noContent().build();
@@ -124,7 +124,7 @@ public class CategoryController {
     public ResponseEntity<Void> safeDelete(@PathVariable Long id) {
         // deletes category only when it is not used in any blogpost
         log.info("Received request: DELETE /categories/{}/safe", id);
-        boolean deleted = service.deleteCategorySafely(id);
+        final boolean deleted = service.deleteCategorySafely(id);
 
         if (deleted) {
             log.info("Returning 204 ok");

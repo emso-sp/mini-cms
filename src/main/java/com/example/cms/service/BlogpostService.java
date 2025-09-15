@@ -5,6 +5,7 @@ import com.example.cms.repository.CategoryRepository;
 import com.example.cms.model.Blogpost;
 import com.example.cms.dto.PostRequest;
 import com.example.cms.dto.PostResponse;
+import com.example.cms.dto.StatusRequest;
 import com.example.cms.util.PostMapper;
 import com.example.cms.service.ServiceResult;
 import org.springframework.stereotype.Service;
@@ -112,6 +113,20 @@ public class BlogpostService {
             Optional.ofNullable(request.categoryIds())
                     .orElse(new ArrayList<>())
         );
+        repository.save(current);
+        log.info("Successfully updated blogpost with id {}", id);
+        return ServiceResult.ok(postMapper.toResponse(current));
+    }
+
+    public ServiceResult<PostResponse> updateStatus(Long id, StatusRequest request) {
+        Optional<Blogpost> existing = repository.findById(id);
+        if (existing.isEmpty()) {
+            log.warn("Blogpost with id {} not found", id);
+            return ServiceResult.notFound();
+        }
+
+        Blogpost current = existing.get();
+        current.setStatus(request.status());
         repository.save(current);
         log.info("Successfully updated blogpost with id {}", id);
         return ServiceResult.ok(postMapper.toResponse(current));

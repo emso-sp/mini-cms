@@ -3,6 +3,7 @@ package com.example.cms.controller;
 import com.example.cms.service.BlogpostService;
 import com.example.cms.dto.PostRequest;
 import com.example.cms.dto.PostResponse;
+import com.example.cms.dto.StatusRequest;
 import com.example.cms.service.ServiceResult;
 
 import java.util.*;
@@ -86,6 +87,27 @@ public class BlogpostController {
             }
             case INVALID_INPUT -> {
                 log.warn("Invalid input, return 400 Bad Request");
+                yield ResponseEntity.badRequest().build();
+            }
+            case NOT_FOUND -> {
+                log.warn("Blogpost not found, return 404 Not Found");
+                yield ResponseEntity.notFound().build();
+            }
+        };
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<PostResponse> updateStatus(@PathVariable Long id, @RequestBody StatusRequest request) {
+        log.info("Received request: PUT /blogposts/{}/status", id);
+
+        ServiceResult<PostResponse> result = service.updateStatus(id, request);
+        return switch (result.getStatus()) {
+            case OK -> {
+                log.info("Status of blogpost {} successfully updated", id);
+                yield ResponseEntity.ok(result.getData());
+            }
+            case INVALID_INPUT -> {
+                log.warn("Invalid input, Status can only be DRAFT, PUBLISHED, and ARCHIVED, return 400 Bad Request");
                 yield ResponseEntity.badRequest().build();
             }
             case NOT_FOUND -> {

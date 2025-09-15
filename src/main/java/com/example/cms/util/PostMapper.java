@@ -2,7 +2,9 @@ package com.example.cms.util;
 
 import com.example.cms.model.Blogpost;
 import com.example.cms.model.Category;
+import com.example.cms.model.Status;
 import com.example.cms.repository.CategoryRepository;
+
 import com.example.cms.dto.PostRequest;
 import com.example.cms.dto.PostResponse;
 
@@ -31,6 +33,7 @@ public class PostMapper {
         blogpost.setAuthor(request.author());
         blogpost.setContent(request.content());
         blogpost.setCreatedAt(LocalDateTime.now());
+        blogpost.setStatus(Status.DRAFT);
         blogpost.setCategories(
             Optional.ofNullable(request.categoryIds())
                 .orElse(new ArrayList<>())
@@ -52,6 +55,7 @@ public class PostMapper {
             blogpost.getAuthor(),
             blogpost.getContent(),
             blogpost.getCreatedAt(),
+            blogpost.getStatus(),
             categoryNames
         );
     }

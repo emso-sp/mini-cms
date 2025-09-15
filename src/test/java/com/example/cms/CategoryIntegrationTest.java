@@ -148,20 +148,52 @@ public class CategoryIntegrationTest {
     @Test
     void testDeleteCategory_alsoDeleteInBlogpost() {
         CategoryRequest request = new CategoryRequest("Tech", "Tech news");
-        ResponseEntity<CategoryResponse> postResponse = restTemplate.postForEntity("/categories", request, CategoryResponse.class);
-        Long createdId = postResponse.getBody().id();
+        ResponseEntity<CategoryResponse> categoryResponse = restTemplate.postForEntity("/categories", request, CategoryResponse.class);
+        Long createdId = categoryResponse.getBody().id();
         PostRequest blogpostRequest = new PostRequest("Ein Test", "Frau Müller", "Das ist der Inhalt des Testbeitrags", new ArrayList<>(List.of(createdId)));
         ResponseEntity<PostResponse> blogpostResponse = restTemplate.postForEntity("/blogposts", blogpostRequest, PostResponse.class);
 
         assertThat(blogpostResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(blogpostResponse.getBody().categories()).isNotEmpty();
-        assertThat(blogpostResponse.getBody().categories()).contains(postResponse.getBody().name());
+        assertThat(blogpostResponse.getBody().categories()).contains(categoryResponse.getBody().name());
 
         ResponseEntity<Void> deleteResponse = restTemplate.exchange("/categories/{id}", HttpMethod.DELETE, null, Void.class, createdId);
         ResponseEntity<PostResponse> getBlogpostResponse = restTemplate.getForEntity("/blogposts/{id}", PostResponse.class, createdId);
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(getBlogpostResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(getBlogpostResponse.getBody().categories()).isEmpty();
+    }
+
+    @Test
+    void testSafelyDeleteCategoryWithReferenceInBlogpost() {
+        CategoryRequest request = new CategoryRequest("Tech", "Tech news");
+        ResponseEntity<CategoryResponse> categoryResponse = restTemplate.postForEntity("/categories", request, CategoryResponse.class);
+        Long createdId = categoryResponse.getBody().id();
+        PostRequest blogpostRequest = new PostRequest("Ein Test", "Frau Müller", "Das ist der Inhalt des Testbeitrags", new ArrayList<>(List.of(createdId)));
+        ResponseEntity<PostResponse> blogpostResponse = restTemplate.postForEntity("/blogposts", blogpostRequest, PostResponse.class);
+
+        assertThat(blogpostResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(blogpostResponse.getBody().categories()).isNotEmpty();
+        assertThat(blogpostResponse.getBody().categories()).contains(categoryResponse.getBody().name());
+
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange("/categories/{id}/safe", HttpMethod.DELETE, null, Void.class, createdId);
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ResponseEntity<PostResponse> getBlogpostResponse = restTemplate.getForEntity("/blogposts/{id}", PostResponse.class, createdId);
+        assertThat(getBlogpostResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getBlogpostResponse.getBody().categories()).isNotEmpty();
+    }
+
+    @Test
+    void testSafelyDeleteCategoryWithoutReferenceInBlogpost() {
+        CategoryRequest request = new CategoryRequest("Tech", "Tech news");
+        ResponseEntity<CategoryResponse> categoryResponse = restTemplate.postForEntity("/categories", request, CategoryResponse.class);
+        Long createdId = categoryResponse.getBody().id();
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange("/categories/{id}/safe", HttpMethod.DELETE, null, Void.class, createdId);
+        ResponseEntity<CategoryResponse> getResponse = restTemplate.getForEntity("/categories/{id}", CategoryResponse.class, createdId);
+
+        assertThat(categoryResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
 }

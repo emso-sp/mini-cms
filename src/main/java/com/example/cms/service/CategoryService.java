@@ -2,6 +2,7 @@ package com.example.cms.service;
 
 import com.example.cms.repository.CategoryRepository;
 import com.example.cms.repository.BlogpostRepository;
+import com.example.cms.repository.BlogpostVersionRepository;
 import com.example.cms.model.Category;
 import com.example.cms.dto.CategoryRequest;
 import com.example.cms.dto.CategoryResponse;
@@ -21,11 +22,13 @@ public class CategoryService {
     private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
     private final CategoryRepository repository;
     private final BlogpostRepository blogpostRepository;
+    private final BlogpostVersionRepository versionRepository;
     private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository repository, BlogpostRepository blogpostRepository, CategoryMapper categoryMapper) {
+    public CategoryService(CategoryRepository repository, BlogpostRepository blogpostRepository, BlogpostVersionRepository versionRepository, CategoryMapper categoryMapper) {
         this.repository = repository;
         this.blogpostRepository = blogpostRepository;
+        this.versionRepository = versionRepository;
         this.categoryMapper = categoryMapper;
     }
 
@@ -88,9 +91,9 @@ public class CategoryService {
     public boolean deleteCategory(final Long id) {
         if (repository.findById(id).isEmpty()) { return false; }
         repository.deleteById(id);
-        // loop through blogpostRepository to remove references to deleted category
+        // loop through blogpostRepository to remove references to deleted category in current version
         blogpostRepository.findAll().forEach(blogpost -> {
-            blogpost.getCategories().remove(id);
+            versionRepository.findById(blogpost.getCurrentVersion()).get().getCategories().remove(id);
         });
         return true;
     }
@@ -103,7 +106,7 @@ public class CategoryService {
             return false;
         }
         // check if category is part of any blogposts
-        if (blogpostRepository.findAll().stream().anyMatch(blogpost -> blogpost.getCategories() != null && blogpost.getCategories().contains(id))) {
+        if (blogpostRepository.findAll().stream().anyMatch(blogpost -> versionRepository.findById(blogpost.getCurrentVersion()).get().getCategories() != null && versionRepository.findById(blogpost.getCurrentVersion()).get().getCategories().contains(id))) {
             log.warn("Category with id {} still used in blogposts, cannot be safely deleted", id);
             return false;
         }

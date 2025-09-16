@@ -21,7 +21,7 @@ import com.example.cms.dto.PostResponse;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BlogpostIntegrationTest {
-
+    
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -38,7 +38,8 @@ public class BlogpostIntegrationTest {
         ResponseEntity<PostResponse> response = restTemplate.postForEntity("/blogposts", request, PostResponse.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().id()).isNotNull();
+        assertThat(response.getBody().blogpostId()).isNotNull();
+        assertThat(response.getBody().versionNumber()).isEqualTo(1);
         assertThat(response.getBody().title()).isEqualTo(title);
         assertThat(response.getBody().author()).isEqualTo(author);
         assertThat(response.getBody().content()).isEqualTo(content);
@@ -115,23 +116,26 @@ public class BlogpostIntegrationTest {
     void testUpdateBlogpostWithValidInput_success() {
         PostRequest createRequest = new PostRequest(title, author, content, emptyCategoryIds);
         ResponseEntity<PostResponse> postBeforeUpdate = restTemplate.postForEntity("/blogposts", createRequest, PostResponse.class);
-        Long createdId = postBeforeUpdate.getBody().id();
+        Long createdId = postBeforeUpdate.getBody().blogpostId();
         PostRequest update = new PostRequest("Neuer Titel", author, content, emptyCategoryIds);
         HttpEntity<PostRequest> entity = new HttpEntity<>(update);
         ResponseEntity<PostResponse> postAfterUpdate = restTemplate.exchange("/blogposts/{id}", HttpMethod.PUT, entity, PostResponse.class, createdId);
 
         assertThat(postAfterUpdate.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(postAfterUpdate.getBody().id()).isEqualTo(createdId);
+        assertThat(postAfterUpdate.getBody().blogpostId()).isEqualTo(createdId);
         assertThat(postBeforeUpdate.getBody().title()).isNotEqualTo(postAfterUpdate.getBody().title());
         assertThat(postBeforeUpdate.getBody().author()).isEqualTo(postAfterUpdate.getBody().author());
         assertThat(postBeforeUpdate.getBody().content()).isEqualTo(postAfterUpdate.getBody().content());
+
+        assertThat(postBeforeUpdate.getBody().versionNumber()).isEqualTo(1);
+        assertThat(postAfterUpdate.getBody().versionNumber()).isEqualTo(2);
     }
 
     @Test
     void testUpdateBlogpostWithInvalidInput_failure() {
         PostRequest createRequest = new PostRequest(title, author, content, emptyCategoryIds);
         ResponseEntity<PostResponse> postBeforeUpdate = restTemplate.postForEntity("/blogposts", createRequest, PostResponse.class);
-        Long createdId = postBeforeUpdate.getBody().id();
+        Long createdId = postBeforeUpdate.getBody().blogpostId();
         PostRequest update = new PostRequest("Neuer Titel", null, content, emptyCategoryIds); // one input is null
         HttpEntity<PostRequest> entity = new HttpEntity<>(update);
         ResponseEntity<PostResponse> postAfterUpdate = restTemplate.exchange("/blogposts/{id}", HttpMethod.PUT, entity, PostResponse.class, createdId);
@@ -147,7 +151,7 @@ public class BlogpostIntegrationTest {
     void testDeleteBlogpost_success() {
         PostRequest createRequest = new PostRequest(title, author, content, emptyCategoryIds);
         ResponseEntity<PostResponse> postResponse = restTemplate.postForEntity("/blogposts", createRequest, PostResponse.class);
-        Long createdId = postResponse.getBody().id();
+        Long createdId = postResponse.getBody().blogpostId();
         ResponseEntity<Void> response = restTemplate.exchange("/blogposts/{id}", HttpMethod.DELETE, null, Void.class, createdId);
         
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -161,5 +165,6 @@ public class BlogpostIntegrationTest {
         ResponseEntity<Void> response = restTemplate.exchange("/blogposts/{id}", HttpMethod.DELETE, null, Void.class, 1L);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+    
     
 }

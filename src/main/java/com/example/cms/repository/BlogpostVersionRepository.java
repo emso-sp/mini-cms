@@ -43,11 +43,8 @@ public class BlogpostVersionRepository {
     }
 
     public void deleteByBlogpostId(final Long blogpostId) {
-        for (BlogpostVersion version : versions.values()) {
-            if (version.getBlogpostId().equals(blogpostId)) {
-                versions.remove(version.getId());
-            }
-        }
+        versions.values().removeIf(version -> version.getBlogpostId().equals(blogpostId));
     }
+
     
 }

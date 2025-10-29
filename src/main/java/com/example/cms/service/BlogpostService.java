@@ -37,54 +37,53 @@ public class BlogpostService {
         List<Blogpost> blogposts = repository.findAll();
         log.info("Successfully fetched {} blogposts", blogposts.size());
 
-        List<BlogpostVersion> currentVersions = new ArrayList<>();
-        for (Blogpost post : blogposts) {
-            BlogpostVersion current = versionRepository.findById(post.getCurrentVersion()).get();
-            currentVersions.add(current);
-        }
+        List<BlogpostVersion> currentVersions = blogposts.stream()
+            .map(Blogpost::getCurrentVersion)
+            .map(versionRepository::findById)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+
         log.info("Successfully fetched {} current versions for each blogpost", currentVersions.size());
         return currentVersions.stream().map(postMapper::toResponse).toList();
     }
 
     public Optional<PostResponse> getBlogpost(final Long id) {
-        Optional<Blogpost> blogpost = repository.findById(id);
-        if (blogpost.isEmpty()) {
-            return Optional.empty();
-        }
-        Long currentVersionId = blogpost.get().getCurrentVersion();
-        if (currentVersionId == null) { return Optional.empty(); }
-        return versionRepository.findById(currentVersionId)
+        return repository.findById(id)
+            .map(Blogpost::getCurrentVersion)
+            .filter(Objects::nonNull)
+            .flatMap(versionRepository::findById)
             .map(postMapper::toResponse);
+        
     }
 
     public List<PostResponse> getBlogpostsByCategory(final List<Long> categoryIds) {
         log.info("Filter blogposts by categories {}", categoryIds);
-        List<Blogpost> blogposts = repository.findAll();
-        List<PostResponse> currentVersionsWithCategory = new ArrayList<>();
-        for (Blogpost post : blogposts) {
-            BlogpostVersion current = versionRepository.findById(post.getCurrentVersion()).get();
-            if (current.getCategories().containsAll(categoryIds)) {
-                currentVersionsWithCategory.add(postMapper.toResponse(current));
-            }
-        }
-        return currentVersionsWithCategory;
+
+        return repository.findAll().stream()
+            .map(Blogpost::getCurrentVersion)
+            .map(versionRepository::findById)
+            .flatMap(Optional::stream)
+            .filter(version -> version.getCategories().containsAll(categoryIds))
+            .map(postMapper::toResponse)
+            .toList(); 
     }
 
     public Optional<List<PostResponse>> getAllVersionsOfBlogpost(Long id) {
-        Optional<Blogpost> blogpost = repository.findById(id);
-        if (blogpost.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(versionRepository.findByBlogpostId(id).stream().map(postMapper::toResponse).toList());
+        return repository.findById(id)
+            .map(post -> versionRepository.findByBlogpostId(post.getId()))
+            .map(versions -> versions.stream()
+                .map(postMapper::toResponse)
+                .toList());
     }
 
     // Helper method: avoid adding categories to blogposts that don't exist
     private boolean validCategories(final List<Long> categories) {
         log.info("Validating categories {}", categories);
-        if (categories == null) {
-            return true;
-        }
-        return categories.stream().allMatch(id -> categoryRepository.findById(id).isPresent());
+        return Optional.ofNullable(categories)
+            .orElseGet(List::of)
+            .stream()
+            .allMatch(id -> categoryRepository.findById(id).isPresent());
     }
 
     // Helper method: invalid title

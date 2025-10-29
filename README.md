@@ -111,7 +111,7 @@ This structure ensures clean separation of concerns and easier testing/maintenan
 
 1. Clone the project: 
 ```bash 
-git clone https://github.com/yourusername/mini-cms.git 
+git clone https://github.com/emso-sp/mini-cms.git 
 ```
 2. Import the project into your IDE (IntelliJ, Eclipse, etc.)
 3. Run the application: 

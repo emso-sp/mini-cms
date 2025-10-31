@@ -14,6 +14,8 @@ import com.example.cms.service.ServiceResult;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
+import javax.naming.NameNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,14 +264,17 @@ public class BlogpostService {
     }
 
     public boolean deleteBlogpost(final Long id) {
-        if (!repository.findById(id).isPresent()) {
-            log.warn("Blogpost with id {} not found. Deleting blogpost unsuccessful", id);
-            return false; 
-        }
-        versionRepository.deleteByBlogpostId(id);
-        repository.deleteById(id);
-        log.info("Successfully deleted blogpost with id {}", id);
-        return true;
+        return repository.findById(id)
+            .map(post -> {
+                versionRepository.deleteByBlogpostId(id);
+                repository.deleteById(id);
+                log.info("Successfully deleted blogpost with id {}", id);
+                return true;
+            })
+            .orElseGet(() -> {
+                log.warn("Blogpost with id {} not found. Deletion unsuccessful", id);
+                return false;
+            });
     }
 
 }

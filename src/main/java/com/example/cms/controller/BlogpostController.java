@@ -6,6 +6,8 @@ import com.example.cms.dto.PostResponse;
 import com.example.cms.dto.StatusRequest;
 import com.example.cms.service.ServiceResult;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.*;
 
 import org.springframework.http.ResponseEntity;
@@ -26,13 +28,10 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/blogposts")
+@RequiredArgsConstructor
 public class BlogpostController {
     private static final Logger log = LoggerFactory.getLogger(BlogpostController.class);
     private final BlogpostService service; 
-
-    public BlogpostController(BlogpostService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<PostResponse> getBlogposts(@RequestParam(required = false, name = "categoryId") List<Long> categoryIds) {

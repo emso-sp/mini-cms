@@ -2,6 +2,9 @@ package com.example.cms.controller;
 
 import com.example.cms.service.CategoryService;
 import com.example.cms.service.ServiceResult;
+
+import lombok.RequiredArgsConstructor;
+
 import com.example.cms.dto.CategoryRequest;
 import com.example.cms.dto.CategoryResponse;
 
@@ -24,13 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class CategoryController {
     private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService service;
-
-    public CategoryController(CategoryService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<CategoryResponse> getAll() {
